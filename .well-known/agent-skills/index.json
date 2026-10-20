@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "agent-cli",
+      "type": "archive",
+      "description": "Builds CLIs on `@duyquangnvx/agent-cli`, the Runtime for Agent CLIs. Use when starting a CLI, adding or changing a Command or `doctor` row of a CLI built on it, or testing one.",
+      "url": "agent-cli/0.9.1.tar.gz",
+      "digest": "sha256:cf863be62a5330c9aa4084083e711aa1e296a313ed12878f973625e855ed3544"
+    }
+  ]
+}
