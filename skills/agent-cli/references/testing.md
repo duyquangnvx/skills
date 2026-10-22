@@ -15,6 +15,8 @@ test("--dry-run prints the Plan and saves nothing", async () => {
 });
 ```
 
+The scaffolded `test/global-setup.ts` points `TMPDIR` at one root that it removes after the run, so these folders leave nothing behind; a CLI without it should add one.
+
 Assert a failure's code through the exported constant, so a misspelt code fails type checking:
 
 ```ts

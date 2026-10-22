@@ -5,8 +5,8 @@
       "name": "agent-cli",
       "type": "archive",
       "description": "Builds CLIs on `@duyquangnvx/agent-cli`, the Runtime for Agent CLIs. Use when starting a CLI, adding or changing a Command or `doctor` row of a CLI built on it, or testing one.",
-      "url": "agent-cli/0.10.0.tar.gz",
-      "digest": "sha256:a87cae490f42d2e823e3d9899910e62f69bc55ebe502c3b16871aebba9ec1d74"
+      "url": "agent-cli/0.10.1.tar.gz",
+      "digest": "sha256:999bc3bfa40f6fb9b5aa979f6a3d07d3c8b70c8844514a7b03c203b60fad9f9a"
     }
   ]
 }
