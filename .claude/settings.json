@@ -1,0 +1,3 @@
+{
+  "claudeMdExcludes": ["**/mina/AGENTS.md", "**/mina/CLAUDE.md", "**/mina/.claude/rules/**"]
+}
