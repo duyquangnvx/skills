@@ -55,4 +55,9 @@ run: (ctx) => {
 },
 ```
 
+The `install` and `registry` rows follow `defineCli({ install })`, and are `skipped` without it. Both are advisory: a project may stay on an older release on purpose.
+
+- **Global install:** `install` checks that the CLI runs from npm's global folder, else gives the global install line; `registry` compares the build with the registry's latest and gives `<cli> update`.
+- **Dependency install:** `install` checks that the copy that runs is the one the project at the working directory installed. It is `skipped` with `registry` when the CLI runs from source or the project links the package from its workspace, which decides its version. Otherwise a project without the package gets its package manager's add line, a copy whose `package.json` is unreadable gets its install line, and another copy than the project's gets `pnpm exec <cli>` or `npx <cli>`. `registry` compares the build with the latest release npm finds from the project root and gives `pnpm up --latest …` or `npm install …@latest`, naming the `lockstep` packages; for yarn and bun it names the version to move to instead.
+
 The `skill` row's fix installs the CLI's skill from `defineCli({ skill: { source } })`, the Skill Hub its release commits the skill to; without it the row gives `skills update` for an older copy and nothing to install a missing one.

@@ -10,6 +10,15 @@ The CLI comes from the registry and its skill from a Skill Hub, so they arrive a
 - A Coding agent's sandbox denies writes to the skills folders and to the global npm prefix, so the user types both lines, with `!` in Claude Code. `-y` is npx's own: with no terminal to answer on, npx cancels its download question.
 - Nothing prints at install or first run: package managers block install scripts, and a first-run line is noise on an agent's stderr.
 
+## Global or Dependency install
+
+The Scaffolder declares a Global install, `install: { mode: "global", package, registry }`: one copy per machine, which the Built-in `update` replaces with the latest release. Declare a Dependency install, `install: { mode: "dependency", package, lockstep? }`, when each project pins the CLI's version as a devDependency, as a CLI does when it shapes the project's own files:
+
+- The Runtime adds no `update`: the project's package manager moves the version, so the name stays free for a Command of the CLI's own.
+- It declares no registry: `doctor` runs npm at the project root, the nearest folder with a lockfile, so the project's `.npmrc` names the registry and its token.
+- List under `lockstep` the packages released at the CLI's version, such as a kit its Commands write code against, so `doctor`'s fix moves them together.
+- The README and the setup reference give the project's install line, such as `pnpm add -D <package> <lockstep…>`, in place of the global one, and the scaffolded test that compares them with `doctor`'s `install` fix goes: that row gives one only in a project that lacks the CLI.
+
 ## Release
 
 Log each change a caller would notice under `## Unreleased` in `CHANGELOG.md` as it merges. To release, bump `version` in `package.json` and run `pnpm release`, which says what to commit.

@@ -3,7 +3,7 @@ name: agent-cli
 description: >-
   Builds CLIs on `@duyquangnvx/agent-cli`, the Runtime for Agent CLIs. Use when starting a CLI, adding or changing a Command or `doctor` row of a CLI built on it, or testing one.
 metadata:
-  version: "0.10.1"
+  version: "0.11.0"
 ---
 
 # agent-cli
@@ -16,7 +16,7 @@ This skill teaches what a type cannot show. The API reference is the JSDoc in `n
 
 ## Runtime version
 
-Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.10.1, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
+Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.11.0, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
 
 ## Start a repo
 
