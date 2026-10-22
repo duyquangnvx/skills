@@ -17,7 +17,7 @@ test("--dry-run prints the Plan and saves nothing", async () => {
 
 The scaffolded `test/global-setup.ts` points `TMPDIR` at one root that it removes after the run, so these folders leave nothing behind; a CLI without it should add one.
 
-Assert a failure's code through the exported constant, so a misspelt code fails type checking:
+Under `--json`, stderr is JSON Lines: one `{"progress":"..."}` per progress line, then `{ errors: [{ code, message, hint, details?, retryAt? }] }` as the last line, even for one error. Assert a failure's code through the exported constant, so a misspelt code fails type checking:
 
 ```ts
 expect(JSON.parse(result.stderr)).toMatchObject({ errors: [{ code: PROJECT_INVALID }] });

@@ -119,6 +119,24 @@ describe("links archive", () => {
     ]);
   });
 
+  test("is idempotent: a second run captures nothing", async () => {
+    const cwd = await folderWith(LINKS);
+    await runCli(cli, ["archive", "--yes"], {
+      env: {},
+      cwd,
+      ports: fakePorts({ archive: fakeArchive(SNAPSHOTS) }),
+      clock: fakeClock(),
+    });
+
+    const again = await runCli(cli, ["archive", "--yes", "--json"], {
+      env: {},
+      cwd,
+      ports: fakePorts({}),
+    });
+
+    expect(again).toEqual({ stdout: "[]\n", stderr: "", exitCode: 0 });
+  });
+
   test("a link the archive cannot capture fails with ARCHIVE_FAILED, exit 3, after the rest", async () => {
     const cwd = await folderWith(LINKS);
     const archive = fakeArchive({

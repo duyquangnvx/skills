@@ -1,9 +1,9 @@
 ---
 name: agent-cli
 description: >-
-  Builds CLIs on `@duyquangnvx/agent-cli`, the Runtime for Agent CLIs. Use when starting a CLI, adding or changing a Command or `doctor` row of a CLI built on it, or testing one.
+  Builds CLIs on `@duyquangnvx/agent-cli`, the Runtime for Agent CLIs. Use when starting a CLI, adding or changing a Command or `doctor` row of a CLI built on it, testing one, or releasing one.
 metadata:
-  version: "0.11.0"
+  version: "0.11.1"
 ---
 
 # agent-cli
@@ -16,7 +16,7 @@ This skill teaches what a type cannot show. The API reference is the JSDoc in `n
 
 ## Runtime version
 
-Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.11.0, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
+Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.11.1, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
 
 ## Start a repo
 
@@ -24,7 +24,16 @@ Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.11.0, the ve
 pnpm create @duyquangnvx/agent-cli <name> --description "One line saying what it does" --skill-hub https://github.com/<owner>/skills.git
 ```
 
-The Scaffolder creates `./<name>`, a working Agent CLI whose example Commands you replace; run it with `--dry-run` first to list every file it would write. Keep the `version`, `description`, `build`, `install` and `engines` lines of its `defineCli`: help, `--version`, `doctor` and `update` read them. `description` is package.json's, which `--description` set: the one line root help and `--help --json` give for what the CLI does. `--skill-hub` names the git URL of the Skill Hub each release commits the CLI skill to: it becomes `skill.source` in `defineCli`, `skillHub` in `scripts/release.ts` and the skill's install line in the README. The repo is started when the Skill Hub is set, the examples (`greet`, `card` and `LANGUAGE_UNSUPPORTED`) are gone from code, tests and `skills/<name>/SKILL.md`, every real Command is [done](#a-command-is-done-when), and that skill is rewritten around the real Commands as its comments say.
+The Scaffolder creates `./<name>`, a working Agent CLI whose example Commands you replace; run it with `--dry-run` first to list every file it would write. `--skill-hub` names the git URL of the Skill Hub each release commits the CLI skill to: it becomes `skill.source` in `defineCli`, `skillHub` in `scripts/release.ts` and the skill's install line in the README.
+
+Keep the `version`, `description`, `build` and `engines` lines of its `defineCli`: help, `--version` and `doctor` read them. Its `install` declares a Global install; a CLI each project pins as a devDependency declares a Dependency install instead ([`references/shipping.md`](references/shipping.md)).
+
+The repo is started when:
+
+- the Skill Hub is set;
+- the examples (`greet`, `card` and `LANGUAGE_UNSUPPORTED`) are gone from code, tests and `skills/<name>/SKILL.md`;
+- every real Command is [done](#a-command-is-done-when);
+- that skill is rewritten around the real Commands, as its comments say.
 
 ## Commands
 
@@ -38,18 +47,24 @@ Call `agentCli<Ports, Settings>()` once and share the `defineCommand` and `defin
 
 Rarer cases, each documented in the types:
 
-- `orStdin` on an arg, for text too long or too quoted for one shell word, as `links import` takes it. A pipe that sends nothing for 30 s (`STDIN_IDLE_MS`) fails the run with `STDIN_STALLED`, exit 1, before the Command runs; a terminal waits as long as the person types.
+- `orStdin` on an arg, for text too long or too quoted for one shell word, as `links import` takes it.
 - A `z.array(...)` arg or option, for repeated values.
 - `operator: true`, for a step only a person at a terminal can take, such as a sign-in through the browser.
 - `hidden: true`, for a Command the CLI runs on itself, such as a daemon ([`references/local-state.md`](references/local-state.md)).
 
-Data over 30,000 characters is spilled: the Runtime writes it to a file under `$TMPDIR` and stdout carries the file, its size and its first 2,000 characters, so one call cannot flood the agent's context. A List Command never spills; `--limit` sizes it.
+Data over 30,000 characters spills to a file, so make a list that may grow a List Command, which `--limit` sizes instead.
 
-Read the working directory and environment from `ctx`, so tests control them. Reach the file system through `ctx.files`, whose failures name the path; a `node:fs` failure is a bug (exit 70). Pass `mode` to its `write` or `mkdir` for a file or folder holding tokens. Catch an exported file code to say what to do instead, as [`example/bundle.ts`](example/bundle.ts) turns `ALREADY_EXISTS` into its own `BUNDLE_EXISTS`. Run a program through `ctx.spawn` and list it in the Command's `tools`, so a missing one fails before any work and `doctor` checks it. Call `ctx.progress` while a long step runs, since a Coding agent may kill a CLI that stays silent.
+Reach the outside through `ctx`, so tests control it:
+
+- the working directory and environment as `ctx.cwd` and `ctx.env`;
+- the file system through `ctx.files`, whose failures name the path; a `node:fs` failure is a bug (exit 70). Pass `mode` to its `write` or `mkdir` for a file or folder holding tokens. Catch an exported file code to say what to do instead, as [`example/bundle.ts`](example/bundle.ts) turns `ALREADY_EXISTS` into its own `BUNDLE_EXISTS`;
+- a key or token through `ctx.secret(name)`, which reads the environment, then the CLI's `.env` at `ctx.envFile` (`~/.config/<name>/.env`, or under `$XDG_CONFIG_HOME`); an empty value counts as unset. Messages name its `origin` and keep its `value` out of the agent's context;
+- a program through `ctx.spawn`, listed in the Command's `tools`, so a missing one fails before any work and `doctor` checks it;
+- `ctx.progress` while a long step runs, since a Coding agent may kill a CLI that stays silent.
 
 ## Effects and Plans
 
-Name Commands so their leading words separate reads from changes (`links list`, `links remove`): a Coding agent's permission rules match command-line prefixes, so the operator can allow every read and still be asked about each change. A read Command takes no flag that changes anything. A write Command is safe to run again: a second run after a success changes nothing, as `links archive` skips links already archived.
+Name Commands so their leading words separate reads from changes (`links list`, `links remove`): a Coding agent's permission rules match command-line prefixes, so the operator can allow every read and still be asked about each change. A read Command takes no flag that changes anything. A write Command is _idempotent_: a second run after a success changes nothing, as `links archive` skips links already archived.
 
 A `read` Command has `run(input, ctx)`. A `write` or `destructive` Command splits the work in two, and the Runtime adds `--dry-run`, which prints the Plan and stops:
 
@@ -125,9 +140,11 @@ return cliError(
 );
 ```
 
-The exit code is the failure's Exit class: 1 the caller, 2 the operator, 3 someone at the source, 75 nobody but time (wait, then run again), 70 a bug, 130 or 143 an interrupt by SIGINT or SIGTERM. A `UsageError` exits 1, for input your schemas could not reject: give it the code `INVALID_INPUT`. A code missing from the table, and anything else thrown, is a bug, unless it keeps a deadline's abort as `cause` (Wrapping a failure in [`references/long-runs.md`](references/long-runs.md)): exit 70, with a hint to rerun under `<NAME>_DEBUG=1` for the stack trace and its `cause` chain, and to report it at package.json's `bugs` when declared. Under `--json`, stderr is JSON Lines: every progress line is `{"progress":"..."}`, and the last line is `{ errors: [{ code, message, hint, details?, retryAt? }] }`, even for one error.
+The exit code is the failure's Exit class: 1 the caller, 2 the operator, 3 someone at the source, 75 nobody but time (wait, then run again), 70 a bug, 130 or 143 an interrupt by SIGINT or SIGTERM. A `UsageError` exits 1, for input your schemas could not reject: give it the code `INVALID_INPUT`.
 
-Every Runtime code is exported under its name, such as `OUTPUT_EXISTS` or `TOOL_FAILED`: catch, return and assert codes through these constants, never as strings. A Command throws a Runtime code only where it means what the Runtime means by it: `INVALID_INPUT`, a file code from `ctx.fileError`, `TOOL_MISSING` or `TOOL_FAILED`. The others, such as `UNKNOWN_COMMAND` or `DOCTOR_PROBLEMS`, name the Runtime's own checks, so a Command only catches or asserts them.
+A code missing from the table, and anything else thrown, is a bug, exit 70, unless it wraps a missed deadline (Wrapping a failure in [`references/long-runs.md`](references/long-runs.md)). Its hint says to rerun under `<NAME>_DEBUG=1` for the stack trace and its `cause` chain, and to report it at package.json's `bugs` when declared.
+
+Every Runtime code is exported under its name, such as `OUTPUT_EXISTS` or `TOOL_FAILED`: catch, return and assert codes through these constants. A Command throws a Runtime code only where it means what the Runtime means by it: `INVALID_INPUT`, a file code from `ctx.fileError`, `TOOL_MISSING` or `TOOL_FAILED`. The others, such as `UNKNOWN_COMMAND` or `DOCTOR_PROBLEMS`, name the Runtime's own checks, so a Command only catches or asserts them.
 
 To report every problem a run found, throw an `AggregateError` of them, nested to group them if you like: each leaf prints with its hint, and the run exits with the first of 1, 2, 3, 75 that any of them has, or 70 when any is not a known `CliError`.
 
@@ -170,6 +187,7 @@ A source that pages itself, such as a remote API, returns `page(items, next)`, w
   - the success output, in text and under `--json`;
   - each `CliError` code;
   - for a write or destructive Command, that `--dry-run` and each refused guard change nothing;
+  - for a write Command, that it is idempotent: a second run after a success changes nothing;
   - cancellation by passing `signal` to `runCli`, aborted once with the reason `"SIGTERM"` for 143;
   - for a `serve` Command, aborting `signal` once the server answers;
   - each `doctor` row it adds, with `HOME` pointed at an empty directory so no installed skill or secret leaks in.
@@ -182,6 +200,6 @@ The example's tests have each of these.
 - [`references/long-runs.md`](references/long-runs.md): a Command that calls a slow outside system, polls, could outlast the caller's tool timeout, starts a job to check on later, has a step that must not stop halfway, works through a queue, reports progress, keeps running as a server, or must keep finished work when it fails.
 - [`references/remote-services.md`](references/remote-services.md): a port to a remote service: declaring ports, classifying failures, retrying, a request that starts a job or bills, a cost the operator approves, an SDK or LLM call, a Side task such as a usage count beside every run.
 - [`references/local-state.md`](references/local-state.md): a daemon or a store that outlives a run.
-- [`references/shipping.md`](references/shipping.md): publishing the CLI, its install lines, its own skill or an `AGENTS.md` block.
-- [`references/doctor.md`](references/doctor.md): adding a `doctor` row, or a tool the whole CLI relies on.
+- [`references/shipping.md`](references/shipping.md): choosing a Global or a Dependency install, releasing the CLI, its install lines, its own skill or an `AGENTS.md` block.
+- [`references/doctor.md`](references/doctor.md): adding a `doctor` row, a tool the whole CLI relies on, or what the `install` and `registry` rows check.
 - [`references/testing.md`](references/testing.md): writing a test, faking a port, the clock, files, a child process or a tool.
