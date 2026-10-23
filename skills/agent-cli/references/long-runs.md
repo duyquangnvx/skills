@@ -54,7 +54,7 @@ A Command that works through a list of free work stops at the first fatal error 
 
 - One `ctx.progress` line per event: no `\r` and no spinners, since stderr is often a log file.
 - An ETA comes from the pace measured in this run, not a constant.
-- A tool silent for minutes looks hung: run it with `progress: true` and ask it for periodic output (`ffmpeg -progress pipe:2 -stats_period 10`).
+- A tool silent for minutes looks hung: ask it for periodic output (`ffmpeg -progress pipe:1 -stats_period 10`) and turn the lines `onLine` receives into one `ctx.progress` line per period. `onLine: ctx.progress` passes on lines that already read as progress.
 - Each item's done line says what it took: time, and what it consumed (tokens, bytes); where a limit caps each call, the largest single call.
 - A fact that belongs to the result goes in the data, never only in progress, which a caller reading stdout never sees.
 
