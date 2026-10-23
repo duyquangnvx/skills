@@ -3,7 +3,7 @@ name: agent-cli
 description: >-
   Builds CLIs on `@duyquangnvx/agent-cli`, the Runtime for Agent CLIs. Use when starting a CLI, adding or changing a Command or `doctor` row of a CLI built on it, testing one, or releasing one.
 metadata:
-  version: "0.11.1"
+  version: "0.12.0"
 ---
 
 # agent-cli
@@ -16,7 +16,7 @@ This skill teaches what a type cannot show. The API reference is the JSDoc in `n
 
 ## Runtime version
 
-Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.11.1, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
+Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.12.0, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
 
 ## Start a repo
 
@@ -59,7 +59,7 @@ Reach the outside through `ctx`, so tests control it:
 - the working directory and environment as `ctx.cwd` and `ctx.env`;
 - the file system through `ctx.files`, whose failures name the path; a `node:fs` failure is a bug (exit 70). Pass `mode` to its `write` or `mkdir` for a file or folder holding tokens. Catch an exported file code to say what to do instead, as [`example/bundle.ts`](example/bundle.ts) turns `ALREADY_EXISTS` into its own `BUNDLE_EXISTS`;
 - a key or token through `ctx.secret(name)`, which reads the environment, then the CLI's `.env` at `ctx.envFile` (`~/.config/<name>/.env`, or under `$XDG_CONFIG_HOME`); an empty value counts as unset. Messages name its `origin` and keep its `value` out of the agent's context;
-- a program through `ctx.spawn`, listed in the Command's `tools`, so a missing one fails before any work and `doctor` checks it;
+- a program through `ctx.spawn`, listed in the Command's `tools`, so a missing one fails before any work and `doctor` checks it. Its `stdin` option feeds the program, from an async iterable for input too large to hold;
 - `ctx.progress` while a long step runs, since a Coding agent may kill a CLI that stays silent.
 
 ## Effects and Plans
