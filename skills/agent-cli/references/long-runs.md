@@ -77,7 +77,7 @@ When you wrap an outside failure in your own `CliError`, let the abort reason th
 
 Keep the original error as `cause` whenever you wrap one, as `archiveFailed` does, and make an adapter or SDK wrapper do the same: an error that is not a `CliError` and whose `cause` chain holds a `ctx.deadline`'s or `ctx.timeout`'s abort is reported as that `DEADLINE_EXCEEDED`. Any other, a `CliError` keeping the abort as `cause` included, is reported as it is, even after a deadline fired.
 
-The Runtime's `INTERRUPTED` says only "run the command again". When the Command knows more, such as what it finished or that a request was never sent, throw its own `CliError` with the code `INTERRUPTED` once `ctx.signal` aborted: it wins over the Runtime's and keeps exit 130 or 143. Compare `ctx.signal.reason` with the exported `INTERRUPTED` and `DEADLINE_EXCEEDED`, so a missed deadline keeps its own error:
+The Runtime's `INTERRUPTED` only names the caller's line to run again, unless it was stopped on purpose. When the Command knows more, such as what it finished or that a request was never sent, throw its own `CliError` with the code `INTERRUPTED` once `ctx.signal` aborted: it wins over the Runtime's and keeps exit 130 or 143. Compare `ctx.signal.reason` with the exported `INTERRUPTED` and `DEADLINE_EXCEEDED`, so a missed deadline keeps its own error:
 
 ```ts
 // A missed run deadline keeps its own error, whose hint is already the resume command.

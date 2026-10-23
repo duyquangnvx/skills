@@ -3,7 +3,7 @@ name: agent-cli
 description: >-
   Builds CLIs on `@duyquangnvx/agent-cli`, the Runtime for Agent CLIs. Use when starting a CLI, adding or changing a Command or `doctor` row of a CLI built on it, testing one, or releasing one.
 metadata:
-  version: "0.13.0"
+  version: "0.13.1"
 ---
 
 # agent-cli
@@ -16,7 +16,7 @@ This skill teaches what a type cannot show. The API reference is the JSDoc in `n
 
 ## Runtime version
 
-Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.13.0, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
+Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.13.1, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
 
 ## Start a repo
 
@@ -177,7 +177,7 @@ A source that pages itself, such as a remote API, returns `page(items, next)`, w
 ## A Command is done when
 
 - Every code it throws is in the Error table.
-- Each hint names the next command to run.
+- Each hint names the next command to run as a full line in backticks; a rerun of the caller's own line comes from `ctx.commandLine()`; a step only the operator can take says so.
 - It declares `output` or `rows`.
 - It has `examples` with realistic full command lines.
 - Every field has `.describe()`.
