@@ -3,7 +3,7 @@ name: agent-cli
 description: >-
   Builds CLIs on `@duyquangnvx/agent-cli`, the Runtime for Agent CLIs. Use when starting a CLI, adding or changing a Command or `doctor` row of a CLI built on it, testing one, or releasing one.
 metadata:
-  version: "0.14.0"
+  version: "0.15.0"
 ---
 
 # agent-cli
@@ -16,7 +16,7 @@ This skill teaches what a type cannot show. The API reference is the JSDoc in `n
 
 ## Runtime version
 
-Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.14.0, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
+Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.15.0, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
 
 ## Start a repo
 
@@ -125,6 +125,8 @@ export const errors = defineErrors({
   },
 });
 ```
+
+When a `details` field is worth reading in text mode too, such as a stack, name it in the code's `print` rather than repeating it in the message, which `--json` would then carry twice.
 
 Throw through `cliError`. The `hint` names the next command to run, and says whether running it again can help. Set `retryAt` only when the source said when to come back:
 
