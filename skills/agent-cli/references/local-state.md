@@ -10,7 +10,8 @@ A daemon or a store outlives the CLI that made it, so the next run may be older 
 
 ## A daemon in the CLI's own package
 
-- **Start it as a `hidden` Command**, detached, through `ctx.spawn` on `self`, which works from source and from the bundle alike.
+- **Start it as a `hidden` `serve` Command** through `ctx.spawnDetached(ctx.self[0], [...ctx.self.slice(1), "daemon"])`, which works from source and from the bundle alike and resolves with the `pid` once the Daemon has started. The Daemon outlives the run and Ctrl-C, and gets no stdio, so it logs to a file. In a test, `runCli({ spawnDetached })` records the call instead.
+- **A Daemon that a newer one replaces stops its work, then calls `ctx.end()`**, which ends its run with exit 0.
 - **Replace it by a protocol message, never a signal:** a Coding agent's sandbox blocks `kill`, and a daemon needs its permission to listen on a local port. The daemon decides while reading the client's `hello`, since an older daemon may refuse the rest of the handshake.
 - **The lowest free port in a fixed list wins**, instead of a lock file a crash leaves stale.
 - **Log a repeating refusal once per distinct cause**, or an outdated client's reconnects flood the log.

@@ -42,6 +42,8 @@ ctx.signal.addEventListener("abort", () => server.close(), { once: true });
 return { url: `http://${HOST}:${port}/` };
 ```
 
+A serve Command may also end itself with `ctx.end()`, exit 0, such as a Daemon that a newer one replaces ([`local-state.md`](local-state.md)). `ctx.signal` does not abort then, so stop the work first. To start a server that outlives the run, spawn its `serve` Command with `ctx.spawnDetached`, never `ctx.spawn`, whose child the run waits for and stops on Ctrl-C.
+
 ## Queues
 
 A Command that works through a list of free work stops at the first fatal error and at Ctrl-C: give each item `AbortSignal.any([ctx.signal, stop.signal])` and abort `stop` from the first failure. Paid work lets every item finish instead (Paid calls in [`remote-services.md`](remote-services.md)).

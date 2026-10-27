@@ -54,6 +54,7 @@ A Command that awaits native threads, such as sharp's, runs work the clock canno
 
 - `files`: replace it to make a read or write fail. A fake implements all seven methods, as `fakeFiles` in [`example/folder.ts`](../example/folder.ts) does.
 - `spawn`: replace it to answer for a child process. It receives the caller's `onLine` when one was passed; call it with each line to emit the child's lines. It receives the `stdin` the caller passed: text or bytes as they were, a stream to read with `for await`.
+- `spawnDetached`: replace it to answer for a detached child, such as a Daemon: return `{ pid }`. A test that fakes `spawn` but not `spawnDetached` fails as a bug when the Command starts one, rather than start a real child.
 - `tools`: put a folder holding an empty executable of that name on the test's `PATH`.
 - `stdin`: pass the text an `orStdin` arg reads as `runCli`'s `stdin` option.
 

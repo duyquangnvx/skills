@@ -3,12 +3,12 @@ name: agent-cli
 description: >-
   Builds CLIs on `@duyquangnvx/agent-cli`, the Runtime for Agent CLIs. Use when starting a CLI, adding or changing a Command or `doctor` row of a CLI built on it, testing one, or releasing one.
 metadata:
-  version: "0.13.1"
+  version: "0.14.0"
 ---
 
 # agent-cli
 
-An Agent CLI is a command-line tool whose main caller is a Coding agent running it through a shell. The Runtime, `@duyquangnvx/agent-cli`, owns parsing, help, output, errors and exit codes, so every Agent CLI keeps the Output contract: stdout carries only a Command's data, stderr only errors and progress, and the exit code is 0 or the failure's Exit class, who must act (see [Errors](#errors)). Your code declares Commands; the Runtime does the rest.
+An Agent CLI is a command-line tool whose main caller is a Coding agent running it through a shell. The Runtime, `@duyquangnvx/agent-cli`, owns parsing, help, output, errors and exit codes, so every Agent CLI keeps the Output contract: stdout carries only a Command's data, stderr only errors, progress and notices, and the exit code is 0 or the failure's Exit class, who must act (see [Errors](#errors)). Your code declares Commands; the Runtime does the rest.
 
 This skill teaches what a type cannot show. The API reference is the JSDoc in `node_modules/@duyquangnvx/agent-cli/dist/index.d.ts` and the files it re-exports: read it for any field, option or method this skill does not spell out.
 
@@ -16,7 +16,7 @@ This skill teaches what a type cannot show. The API reference is the JSDoc in `n
 
 ## Runtime version
 
-Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.13.1, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
+Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.14.0, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
 
 ## Start a repo
 
@@ -24,13 +24,13 @@ Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.13.1, the ve
 pnpm create @duyquangnvx/agent-cli <name> --description "One line saying what it does" --skill-hub https://github.com/<owner>/skills.git
 ```
 
-The Scaffolder creates `./<name>`, a working Agent CLI whose example Commands you replace; run it with `--dry-run` first to list every file it would write. `--skill-hub` names the git URL of the Skill Hub each release commits the CLI skill to: it becomes `skill.source` in `defineCli`, `skillHub` in `scripts/release.ts` and the skill's install line in the README.
+The Scaffolder creates `./<name>`, a working Agent CLI whose example Commands you replace; run it with `--dry-run` first to list every file it would write. `--skill-hub` names the git URL of the Skill Hub each release commits the CLI skill to: it becomes `skill.source` in `defineCli`, `skillHub` in `scripts/release.ts` and the skill's install line in the README. `--dependency` instead starts a Dependency install with a Packaged skill, which the CLI's `skill install` copies into a project ([`references/shipping.md`](references/shipping.md)).
 
 Keep the `version`, `description`, `build` and `engines` lines of its `defineCli`: help, `--version` and `doctor` read them. Its `install` declares a Global install; a CLI each project pins as a devDependency declares a Dependency install instead ([`references/shipping.md`](references/shipping.md)).
 
 The repo is started when:
 
-- the Skill Hub is set;
+- the skill's home is set: a Skill Hub, or a Packaged skill;
 - the examples (`greet`, `card` and `LANGUAGE_UNSUPPORTED`) are gone from code, tests and `skills/<name>/SKILL.md`;
 - every real Command is [done](#a-command-is-done-when);
 - that skill is rewritten around the real Commands, as its comments say.
@@ -60,7 +60,8 @@ Reach the outside through `ctx`, so tests control it:
 - the file system through `ctx.files`, whose failures name the path; a `node:fs` failure is a bug (exit 70). Pass `mode` to its `write` or `mkdir` for a file or folder holding tokens. Catch an exported file code to say what to do instead, as [`example/bundle.ts`](example/bundle.ts) turns `ALREADY_EXISTS` into its own `BUNDLE_EXISTS`;
 - a key or token through `ctx.secret(name)`, which reads the environment, then the CLI's `.env` at `ctx.envFile` (`~/.config/<name>/.env`, or under `$XDG_CONFIG_HOME`); an empty value counts as unset. Messages name its `origin` and keep its `value` out of the agent's context;
 - a program through `ctx.spawn`, listed in the Command's `tools`, so a missing one fails before any work and `doctor` checks it. Its `stdin` option feeds the program, from an async iterable for input too large to hold, and its `onLine` option receives each line the program writes as it comes;
-- `ctx.progress` while a long step runs, since a Coding agent may kill a CLI that stays silent.
+- `ctx.progress` while a long step runs, since a Coding agent may kill a CLI that stays silent;
+- `ctx.notice` for something the caller should know beside the data, such as that a copy it relies on is behind. A fact the next step acts on belongs in the data instead.
 
 ## Effects and Plans
 
@@ -200,6 +201,6 @@ The example's tests have each of these.
 - [`references/long-runs.md`](references/long-runs.md): a Command that calls a slow outside system, polls, could outlast the caller's tool timeout, starts a job to check on later, has a step that must not stop halfway, works through a queue, reports progress, keeps running as a server, or must keep finished work when it fails.
 - [`references/remote-services.md`](references/remote-services.md): a port to a remote service: declaring ports, classifying failures, retrying, a request that starts a job or bills, a cost the operator approves, an SDK or LLM call, a Side task such as a usage count beside every run.
 - [`references/local-state.md`](references/local-state.md): a daemon or a store that outlives a run.
-- [`references/shipping.md`](references/shipping.md): choosing a Global or a Dependency install, releasing the CLI, its install lines, its own skill or an `AGENTS.md` block.
-- [`references/doctor.md`](references/doctor.md): adding a `doctor` row, a tool the whole CLI relies on, or what the `install` and `registry` rows check.
+- [`references/shipping.md`](references/shipping.md): choosing a Global or a Dependency install, releasing the CLI, its install lines, its own skill from a Skill Hub or packaged with it, or an `AGENTS.md` block.
+- [`references/doctor.md`](references/doctor.md): adding a `doctor` row, a tool the whole CLI relies on, or what the `install`, `registry` and `skill` rows check.
 - [`references/testing.md`](references/testing.md): writing a test, faking a port, the clock, files, a child process or a tool.
