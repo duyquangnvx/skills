@@ -3,7 +3,7 @@ name: agent-cli
 description: >-
   Builds CLIs on `@duyquangnvx/agent-cli`, the Runtime for Agent CLIs. Use when starting a CLI, adding or changing a Command or `doctor` row of a CLI built on it, testing one, or releasing one.
 metadata:
-  version: "0.16.0"
+  version: "0.17.0"
 ---
 
 # agent-cli
@@ -16,7 +16,7 @@ This skill teaches what a type cannot show. The API reference is the JSDoc in `n
 
 ## Runtime version
 
-Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.16.0, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
+Compare `@duyquangnvx/agent-cli` in the CLI's `package.json` with 0.17.0, the version this skill describes. If they differ, tell the user before going on: an API below may have changed.
 
 ## Start a repo
 
@@ -67,7 +67,9 @@ Reach the outside through `ctx`, so tests control it:
 
 Name Commands so their leading words separate reads from changes (`links list`, `links remove`): a Coding agent's permission rules match command-line prefixes, so the operator can allow every read and still be asked about each change. A read Command takes no flag that changes anything. A write Command is _idempotent_: a second run after a success changes nothing, as `links archive` skips links already archived.
 
-A `read` Command has `run(input, ctx)`. A `write` or `destructive` Command splits the work in two, and the Runtime adds `--dry-run`, which prints the Plan and stops:
+An `act` Command changes the state of a program already running, such as a tap on a game in a browser tab: state that ends with that program. State that outlives it, such as a file or a remote service, is `write` or `destructive`. An Effect says what the Command itself changes, so a Command that runs the caller's script, such as an `eval`, is `act`, and its `help` says what the script can reach. Running an `act` Command again may act again.
+
+A `read` or `act` Command has `run(input, ctx)` and no Plan. A `write` or `destructive` Command splits the work in two, and the Runtime adds `--dry-run`, which prints the Plan and stops:
 
 ```ts
 plan: async ({ url, tag }, ctx) => {
