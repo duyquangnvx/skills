@@ -51,8 +51,8 @@ Log each change a caller would notice under `## Unreleased` in `CHANGELOG.md` as
 
 A CLI owns one `<!-- BEGIN:<name> -->`…`<!-- END:<name> -->` block in the repo's `AGENTS.md`, rewritten between its markers and leaving the rest as it was. Claude Code reads `AGENTS.md` only through an `@AGENTS.md` line in `CLAUDE.md`, so whatever writes the block names that line as a hand edit; no CLI edits `CLAUDE.md`.
 
-- A Packaged skill's `skill install` writes the block for you.
-- Otherwise the block holds only a rule for work done without calling the CLI (such as how to name what it later finds by name), written by a Command of the CLI's own; how to use the CLI is the skill's.
+- The block holds what every session in the repo needs even when it never calls the CLI, such as how to name what the CLI later finds by name, plus a line saying when to load the CLI's skill; how to use the CLI is the skill's. Every session reads it, so keep it short.
+- A Packaged skill declares its text as `skill: { packaged, agents }`, and `skill install` writes it verbatim between the markers; without `agents` it writes no block. Otherwise a Command of the CLI's own writes the block.
 
 ## What to build next
 

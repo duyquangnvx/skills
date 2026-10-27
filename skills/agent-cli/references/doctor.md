@@ -63,4 +63,4 @@ The `install` and `registry` rows follow `defineCli({ install })`, and are `skip
 The `skill` row follows `defineCli({ skill })` ([`shipping.md`](shipping.md)):
 
 - **Skill Hub, `{ source }`:** the row is always ok and names every installed copy against the running CLI; its fix installs the skill from the hub. Without `skill` it gives `skills update` for an older copy and nothing to install a missing one.
-- **Packaged skill, `{ packaged }`:** the row is advisory, and the Runtime also gives a Notice of its problem and an `agents` row; what each reports is in the `skill` JSDoc of `defineCli`. Do not check the Skill copy or the `AGENTS.md` block in your own rows or Notices.
+- **Packaged skill, `{ packaged }`:** the row is advisory, and the Runtime also gives a Notice of its problem and, when it declares `agents`, an `agents` row; what each reports is in the `skill` JSDoc of `defineCli`. Do not check the Skill copy or the `AGENTS.md` block in your own rows or Notices.
